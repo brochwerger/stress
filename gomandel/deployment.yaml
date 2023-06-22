@@ -1,0 +1,54 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  annotations: {}
+  name: gomandel
+
+  namespace: stress
+  labels:
+    app: gomandel
+    app.kubernetes.io/component: gomandel
+    app.kubernetes.io/instance: gomandel
+    app.kubernetes.io/name: gomandel
+    app.kubernetes.io/part-of: gomandel-app
+
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gomandel
+  template:
+    metadata:
+      labels:
+        app: gomandel
+        deployment: gomandel
+    spec:
+      containers:
+        - name: gomandel
+          image: quay.io/brochwer/mandel:latest
+          resources:
+            limits:
+              memory: 3Gi
+            requests:
+              cpu: 1000m
+          imagePullPolicy: Always
+          securityContext:
+            runAsNonRoot: true
+            capabilities:
+              drop: 
+              - ALL
+            allowPrivilegeEscalation: false
+            seccompProfile:
+              type: RuntimeDefault
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+      securityContext: {}
+      schedulerName: default-scheduler
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 25%
+      maxSurge: 25%
+  revisionHistoryLimit: 10
+  progressDeadlineSeconds: 600
